@@ -1,0 +1,391 @@
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #87CEEB 0%, #98FB98 50%, #90EE90 100%);
+  min-height: 100vh;
+}
+
+@font-face {
+  font-family: 'DSEG7';
+  src: url(../fonts/DSEG7Classic-BoldItalic.ttf) format('truetype');
+}
+
+h1 {
+  margin-bottom: 20px;
+  color: #333;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.game-board {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.display-board {
+  background: linear-gradient(45deg, #8B4513, #A0522D);
+  border: 8px solid #654321;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  transform: rotateX(-10deg);
+  margin-bottom: 20px;
+  position: relative;
+  width: 400px;
+}
+
+.game-title {
+  font-family: 'Courier New', monospace;
+  font-size: 28px;
+  font-weight: bold;
+  color: #FFD700;
+  text-align: center;
+  text-shadow: 3px 3px 0px #8B0000,
+               -1px -1px 0px #8B0000,
+               1px -1px 0px #8B0000,
+               -1px 1px 0px #8B0000,
+               1px 1px 0px #8B0000;
+  margin-bottom: 15px;
+  letter-spacing: 2px;
+}
+
+.score-display {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.seven-segment-display {
+  background: #2a2a2a;
+  border: 4px solid #444;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+.main-score {
+  transform: scale(1.2);
+}
+
+.high-score {
+  transform: scale(0.8);
+}
+
+.digit {
+  display: inline-block;
+  font-family: 'DSEG7', 'Courier New', monospace;
+  font-size: 36px;
+  font-weight: bold;
+  color: #ff0000;
+  text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+  background: #000;
+  border: 2px solid #333;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0 2px;
+  min-width: 30px;
+  text-align: center;
+}
+
+.high-score-display {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  text-align: center;
+}
+
+.time-remaining-display {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  text-align: center;
+}
+
+.high-score-label {
+  color: #FFD700;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.high-score .digit {
+  font-size: 18px;
+  padding: 4px 6px;
+  min-width: 15px;
+}
+
+.playing-field {
+  width: 400px;
+  height: 400px;
+  background: linear-gradient(45deg, #228B22, #32CD32);
+  border: 6px solid #8B4513;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 20px;
+  padding: 30px;
+  transform: rotateX(10deg) translateZ(-20px);
+}
+
+.hole-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hole {
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, #000 30%, #333 70%, #666 100%);
+  border-radius: 50%;
+  border: 4px solid #8B4513;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.3);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.1s ease;
+}
+
+.hole:hover {
+  transform: scale(1.05);
+}
+
+.hole:active {
+  transform: scale(0.95);
+}
+
+.mole {
+  position: absolute;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 60px;
+  transition: none;
+  cursor: pointer;
+}
+
+.mole.entering {
+  animation: mole-enter 0.15s ease-out forwards;
+}
+
+.mole.exiting {
+  animation: mole-exit 0.15s ease-in forwards;
+}
+
+.mole.visible {
+  bottom: -10px;
+}
+
+.mole.hit {
+  animation: mole-hit 0.2s ease-in forwards;
+}
+
+@keyframes mole-enter {
+  from {
+    bottom: -60px;
+  }
+  to {
+    bottom: -10px;
+  }
+}
+
+@keyframes mole-exit {
+  from {
+    bottom: -10px;
+  }
+  to {
+    bottom: -60px;
+  }
+}
+
+@keyframes mole-hit {
+  0% {
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) scale(1.1) rotate(5deg);
+  }
+  100% {
+    transform: translateX(-50%) scale(0.8);
+    bottom: -60px;
+  }
+}
+
+.mole-body {
+  width: 50px;
+  height: 40px;
+  background: linear-gradient(45deg, #8B4513 0%, #A0522D 50%, #CD853F 100%);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  border: 2px solid #654321;
+  position: relative;
+}
+
+.mole-body::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  width: 6px;
+  height: 6px;
+  background: #000;
+  border-radius: 50%;
+  box-shadow: 14px 0 0 #000;
+}
+
+.mole-body::after {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 20px;
+  width: 8px;
+  height: 4px;
+  background: #000;
+  border-radius: 50%;
+}
+
+.hard-hat {
+  position: absolute;
+  top: -8px;
+  left: 2px;
+  width: 46px;
+  height: 25px;
+  background: linear-gradient(45deg, #FFD700, #FFA500);
+  border-radius: 50% 50% 20% 20%;
+  border: 2px solid #B8860B;
+}
+
+.hard-hat::before {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: -2px;
+  width: 50px;
+  height: 8px;
+  background: #B8860B;
+  border-radius: 25px;
+}
+
+.hat-light {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, #fff 20%, #ffff00 60%, #ffa500 100%);
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 8px rgba(255,255,0,0.6);
+}
+
+/* Grid positioning for holes */
+.hole-container:nth-child(1) { grid-area: 1 / 1 / 2 / 4; text-align: right; }
+.hole-container:nth-child(2) { grid-area: 1 / 4 / 2 / 7; text-align: left; }
+.hole-container:nth-child(3) { grid-area: 2 / 1 / 3 / 3; text-align: right; }
+.hole-container:nth-child(4) { grid-area: 2 / 3 / 3 / 5; text-align: center;}
+.hole-container:nth-child(5) { grid-area: 2 / 5 / 3 / 7; text-align: left;}
+.hole-container:nth-child(6) { grid-area: 3 / 1 / 4 / 4; text-align: right;}
+.hole-container:nth-child(7) { grid-area: 3 / 4 / 4 / 7; text-align: left;}
+
+.controls {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.controls p {
+  margin-bottom: 10px;
+  color: #333;
+  font-weight: bold;
+}
+
+.start-button, .restart-button {
+  padding: 12px 24px;
+  font-size: 18px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.start-button:hover, .restart-button:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+.start-button:active, .restart-button:active {
+  transform: translateY(0);
+}
+
+.timer {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ff0000;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.game-over {
+  font-size: 24px;
+  font-weight: bold;
+  color: #d32f2f;
+  margin-bottom: 15px;
+}
+
+.new-high-score {
+  font-size: 20px;
+  font-weight: bold;
+  color: #FFD700;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  animation: celebration 1s ease-in-out infinite;
+}
+
+@keyframes celebration {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .game-container {
+    padding: 10px;
+  }
+
+  .display-board {
+    width: 320px;
+    padding: 15px;
+  }
+
+  .playing-field {
+    width: 350px;
+    height: 280px;
+    padding: 20px;
+  }
+
+  .hole {
+    width: 60px;
+    height: 60px;
+  }
+
+  .mole {
+    width: 40px;
+    height: 50px;
+  }
+
+  .mole-body {
+    width: 40px;
+    height: 32px;
+  }
+
+  .hard-hat {
+    width: 36px;
+    height: 20px;
+  }
+}

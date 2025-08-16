@@ -1,0 +1,84 @@
+<div class="game-container">
+  <div class="game-header">
+    <div class="score-board">
+      <div class="score-item">
+        <span class="label">Score:</span>
+        <span class="value">{{ score }}</span>
+      </div>
+      <div class="score-item">
+        <span class="label">High Score:</span>
+        <span class="value">{{ highScore }}</span>
+      </div>
+      <div class="score-item">
+        <span class="label">Round:</span>
+        <span class="value">{{ currentRound }}/{{ totalRounds }}</span>
+      </div>
+      <div class="score-item">
+        <span class="label">Shots:</span>
+        <span class="value">{{ shotsRemaining }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="game-field" (click)="onFieldClick($event)">
+    <!-- Background -->
+    <div class="field-background"></div>
+
+    <!-- Pheasants -->
+    @for (pheasant of pheasants; track pheasant.id) {
+      @if (!pheasant.hit && !pheasant.escaped) {
+        <div class="pheasant"
+             [style.left.px]="pheasant.x - 30"
+             [style.top.px]="pheasant.y - 30"
+             [class.flying-left]="pheasant.vx < 0"
+             [class.flying-right]="pheasant.vx > 0">
+          🦆
+        </div>
+      }
+    }
+
+    <!-- Shot markers -->
+    @for (shot of shots; track shot.timestamp) {
+      <div class="shot-marker"
+           [style.left.px]="shot.x - 10"
+           [style.top.px]="shot.y - 10">
+      </div>
+    }
+
+    <!-- Hit markers -->
+    @for (marker of hitMarkers; track marker.timestamp) {
+      <div class="hit-marker"
+           [style.left.px]="marker.x - 20"
+           [style.top.px]="marker.y - 20">
+        +{{ marker.points }}
+      </div>
+    }
+
+    <!-- Game state messages -->
+    @if (!gameActive && currentRound === 0) {
+      <div class="game-message">
+        <h2>Pheasant Hunt</h2>
+        <p>Tap the pheasants before they escape!</p>
+        <p>{{ totalRounds }} rounds, 2 pheasants per round</p>
+        <button class="start-button" (click)="startGame()">Start Game</button>
+      </div>
+    }
+
+    @if (!gameActive && currentRound >= totalRounds) {
+      <div class="game-message">
+        <h2>Game Over!</h2>
+        <p>Final Score: {{ score }}</p>
+        @if (score === highScore && score > 0) {
+          <p class="high-score-message">New High Score!</p>
+        }
+        <button class="start-button" (click)="resetGame()">Play Again</button>
+      </div>
+    }
+
+    @if (gameActive && pheasants.length === 0) {
+      <div class="round-message">
+        Round {{ currentRound }}
+      </div>
+    }
+  </div>
+</div>

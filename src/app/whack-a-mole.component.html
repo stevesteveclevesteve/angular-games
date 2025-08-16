@@ -1,0 +1,64 @@
+<div class="game-container">
+  <h1>Whack-a-Mole</h1>
+
+  <div class="game-board">
+    <div class="display-board">
+      <div class="game-title">WHACK-A-MOLE</div>
+      <div class="score-display">
+        <div class="seven-segment-display main-score">
+          <span class="digit">{{ getScoreDigit(0) }}</span>
+          <span class="digit">{{ getScoreDigit(1) }}</span>
+        </div>
+      </div>
+      <div class="time-remaining-display">
+        <div class="high-score-label">TIME</div>
+        <div class="seven-segment-display high-score">
+          <span class="digit">{{ getTimeRemainingDigit(0) }}</span>
+          <span class="digit">{{ getTimeRemainingDigit(1) }}</span>
+        </div>
+      </div>
+      <div class="high-score-display">
+        <div class="high-score-label">HIGH</div>
+        <div class="seven-segment-display high-score">
+          <span class="digit">{{ getHighScoreDigit(0) }}</span>
+          <span class="digit">{{ getHighScoreDigit(1) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="playing-field">
+      @for (hole of holes; track hole.id; let i = $index) {
+        <div class="hole-container" [style.grid-area]="getGridArea(i)" [style.align-items]="getGridTextAlign(i)">
+          <div class="hole" (click)="whackMole(hole.id)">
+            <div class="mole"
+                 [class.visible]="hole.mole?.isVisible"
+                 [class.hit]="hole.mole?.isHit"
+                 [class.entering]="hole.mole?.isEntering"
+                 [class.exiting]="hole.mole?.isExiting">
+              <div class="mole-body"></div>
+              <div class="hard-hat">
+                <div class="hat-light"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="controls">
+    @if (gameState === 'waiting') {
+      <button (click)="startGame()" class="start-button">Start Game</button>
+      <p>Click Start to begin a 30-second round!</p>
+    } @else if (gameState === 'playing') {
+      <p class="timer">Time: {{ timeRemaining }}s</p>
+      <p>Whack the moles as they pop up!</p>
+    } @else if (gameState === 'finished') {
+      <p class="game-over">Game Over! Final Score: {{ currentScore }}</p>
+      @if (currentScore === highScore && currentScore > 0) {
+        <p class="new-high-score">🎉 NEW HIGH SCORE! 🎉</p>
+      }
+      <button (click)="resetGame()" class="restart-button">Play Again</button>
+    }
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<div class="game-container">
+  <h1>Hungry Hungry Hippos</h1>
+  <canvas #gameCanvas class="game-canvas"></canvas>
+  <div class="controls">
+    <p>Click or press SPACE/ENTER to chomp!</p>
+
+    @if (gameState === 'gameover') {
+      <p class="game-over">Game Over! Winner: {{ getWinner() }}</p>
+      <button (click)="restart()" class="restart-button">Play Again</button>
+    } @else {
+      <p class="score">Your Score: {{ getPlayerScore() }}</p>
+    }
+  </div>
+
+  <div class="legend">
+    <h3>Game Features:</h3>
+    <div class="feature-grid">
+      <div class="feature">
+        <h4>AI Personalities:</h4>
+        <ul>
+          <li><strong>SNIPER:</strong> Perfect timing</li>
+          <li><strong>MASHER:</strong> Rapid chomping</li>
+          <li><strong>RANDO:</strong> Unpredictable</li>
+          <li><strong>RHYTHM:</strong> Musical timing</li>
+        </ul>
+      </div>
+
+      <div class="feature">
+        <h4>Power-ups:</h4>
+        <ul>
+          <li><span style="color: #00AA00;">●</span> <strong>SPEED:</strong> Faster chomping</li>
+          <li><span style="color: #AA00AA;">●</span> <strong>RANGE:</strong> Longer reach</li>
+          <li><span style="color: #AA0000;">●</span> <strong>STUN:</strong> Disrupts others</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

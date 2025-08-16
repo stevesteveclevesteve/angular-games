@@ -1,0 +1,60 @@
+<main class="main">
+  <div class="content">
+    <div class="left-side">
+      @if (showMessage) {
+        <div class="message-overlay"
+          [ngStyle]="{
+            'transform': 'rotate(' + messageAngle + 'deg)'
+        }">
+          {{ messageText }}
+        </div>
+      }
+      <div class="wordle-grid">
+        @for (gridrow of grid; track gridrow) {
+          <div class="wordle-row">
+            @for (tile of gridrow; track tile.index) {
+              <div class="wordle-tile"
+              [class.wordle-tile-present]="tile.status === 'present'"
+              [class.wordle-tile-correct]="tile.status === 'correct'"
+              [class.wordle-tile-absent]="tile.status === 'absent'"
+              [class.wordle-tile-bounce]="guessWasCorrect && gridrow === grid[guesses.length - 1]">
+              {{ tile.letter }}
+            </div>
+            }
+          </div>
+        }
+      </div>
+      <div class="input-row">
+        <input
+          class="pill pill-input"
+          type="text"
+          placeholder="Enter your guess"
+          aria-label="Enter your guess"
+          minlength="5"
+          maxlength="5"
+          [(ngModel)]="guessValue"
+          (keyup.enter)="submitGuess(guessValue); guessValue='';"
+          [disabled]="canReset"
+          autocomplete="off"
+        /></div>
+      <div class="input-row">
+        @if (canReset) {
+          <input
+            type="button"
+            class="pill"
+            value="Reset Game"
+            (click)="resetGame()"
+          />
+        } @else {
+          <input
+            type="button"
+            class="pill"
+            value="Submit Guess"
+            (click)="submitGuess(guessValue); guessValue='';"
+            [disabled]="guessValue.length !== 5"
+          />
+        }
+      </div>
+    </div>
+  </div>
+</main>
