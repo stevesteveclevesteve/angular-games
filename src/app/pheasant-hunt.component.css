@@ -35,7 +35,7 @@
     #87CEEB 0%,
     #87CEEB 55%,
     #003300 55%,
-    #005500 60%
+    #005500 60%,
     #003300 70%,
     #90EE90 70%,
     #228B22 100%);
@@ -50,20 +50,57 @@
 
 .pheasant {
   position: absolute;
-  font-size: 30px;
+  width: 80px;
+  height: 40px;
   transform-origin: center;
   transition: none;
   pointer-events: none;
+  z-index: 5;
 }
 
 .pheasant-hit {
-  transition: transform 2s ease-in;
-  opacity: 0.7;
+  opacity: 0.8;
+}
+
+.pheasant-sprite {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.wing-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.pheasant-sprite.flying .wings-up {
+  animation: wingFlap 0.3s ease-in-out infinite alternate;
+}
+
+.pheasant-sprite.flying .wings-down {
+  animation: wingFlap 0.3s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes wingFlap {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.pheasant-hit .pheasant-sprite.flying .wings-up,
+.pheasant-hit .pheasant-sprite.flying .wings-down {
+  animation: none;
+}
+.pheasant svg {
+  width: 100%;
+  height: 100%;
 }
 
 .message-overlay {
   position: absolute;
-  top: 50%;
+  top: 85%;
   left: 50%;
   transform: translate(-50%, -50%);
   background: rgba(0, 0, 0, 0.8);
@@ -74,6 +111,39 @@
   font-weight: bold;
   text-align: center;
   pointer-events: none;
+}
+
+.hit-marker {
+  position: absolute;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+  pointer-events: none;
+  animation: fadeUp 1s ease-out forwards;
+  z-index: 10;
+  transform: translate(-50%, -50%); /* Center the marker */
+}
+
+.shot-marker {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ff0000;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: shotFade 0.2s ease-out forwards;
+  transform: translate(-50%, -50%); /* Center the marker */
+}
+
+@keyframes fadeUp {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-30px); }
+}
+
+@keyframes shotFade {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.5); }
 }
 
 .game-controls {

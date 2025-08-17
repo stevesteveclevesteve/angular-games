@@ -1,0 +1,159 @@
+<div class="game-container">
+  <div class="game-header">
+    <div class="score-display">
+      <div>Score: {{ gameState.score }}</div>
+      <div>High Score: {{ gameState.highScore }}</div>
+    </div>
+    <div class="game-info">
+      <div>Round: {{ gameState.round }}/{{ 6 }}</div>
+      <div>Shots: {{ gameState.shotsRemaining }}</div>
+    </div>
+  </div>
+
+<div class="game-field" (mousedown)="onFieldClick($event)">
+    <!-- Background -->
+    <div class="field-background"></div>
+
+    <!-- Pheasants -->
+    <div class="pheasant-container">
+      @for (pheasant of gameState.pheasants; track pheasant.id) {
+        @if (isPheasantVisible(pheasant)) {
+          <div
+            class="pheasant"
+            [class.pheasant-hit]="pheasant.isHit"
+            [style.left.%]="getPheasantPosition(pheasant).x - 4.5"
+            [style.top.%]="getPheasantPosition(pheasant).y - 3"
+            [style.transform]="getPheasantRotation(pheasant)">
+            <div class="pheasant-sprite" [class.flying]="!pheasant.isHit">
+              @if (pheasant.isMale) {
+                <!-- Male pheasant wings up -->
+                <svg class="wing-frame wings-up" viewBox="0 0 80 40" width="80" height="40">
+                  <!-- Body -->
+                  <ellipse cx="40" cy="25" rx="18" ry="10" fill="#8B4513"/>
+                  <!-- Neck -->
+                  <ellipse cx="52" cy="20" rx="8" ry="6" fill="#228B22"/>
+                  <!-- Head -->
+                  <ellipse cx="60" cy="16" rx="7" ry="6" fill="#FF6347"/>
+                  <!-- White neck ring -->
+                  <ellipse cx="54" cy="19" rx="6" ry="4" fill="white" opacity="0.8"/>
+                  <!-- Wings up - larger -->
+                  <path d="M 40 18 Q 25 5 15 10 Q 20 20 40 25" fill="#654321" stroke="#4A3C1C" stroke-width="1"/>
+                  <path d="M 40 18 Q 55 5 65 10 Q 60 20 40 25" fill="#654321" stroke="#4A3C1C" stroke-width="1"/>
+                  <!-- Wing details -->
+                  <path d="M 25 15 Q 30 12 35 15" fill="#8B6633" opacity="0.7"/>
+                  <path d="M 55 15 Q 50 12 45 15" fill="#8B6633" opacity="0.7"/>
+                  <!-- Long tail -->
+                  <path d="M 22 25 Q 10 23 2 25 Q 10 27 22 25" fill="#D2691E" stroke="#A0522D" stroke-width="1"/>
+                  <path d="M 22 25 Q 12 28 5 30 Q 12 28 22 25" fill="#CD853F" stroke="#A0522D" stroke-width="1"/>
+                  <!-- Eye -->
+                  <circle cx="62" cy="15" r="2" fill="black"/>
+                  <circle cx="63" cy="14" r="0.5" fill="white"/>
+                  <!-- Beak -->
+                  <path d="M 66 16 L 70 16 L 66 18 Z" fill="#FFD700"/>
+                </svg>
+
+                <!-- Male pheasant wings down -->
+                <svg class="wing-frame wings-down" viewBox="0 0 80 40" width="80" height="40">
+                  <!-- Body -->
+                  <ellipse cx="40" cy="25" rx="18" ry="10" fill="#8B4513"/>
+                  <!-- Neck -->
+                  <ellipse cx="52" cy="20" rx="8" ry="6" fill="#228B22"/>
+                  <!-- Head -->
+                  <ellipse cx="60" cy="16" rx="7" ry="6" fill="#FF6347"/>
+                  <!-- White neck ring -->
+                  <ellipse cx="54" cy="19" rx="6" ry="4" fill="white" opacity="0.8"/>
+                  <!-- Wings down - larger -->
+                  <path d="M 40 25 Q 25 35 15 32 Q 20 25 40 18" fill="#654321" stroke="#4A3C1C" stroke-width="1"/>
+                  <path d="M 40 25 Q 55 35 65 32 Q 60 25 40 18" fill="#654321" stroke="#4A3C1C" stroke-width="1"/>
+                  <!-- Wing details -->
+                  <path d="M 25 30 Q 30 32 35 30" fill="#8B6633" opacity="0.7"/>
+                  <path d="M 55 30 Q 50 32 45 30" fill="#8B6633" opacity="0.7"/>
+                  <!-- Long tail -->
+                  <path d="M 22 25 Q 10 23 2 25 Q 10 27 22 25" fill="#D2691E" stroke="#A0522D" stroke-width="1"/>
+                  <path d="M 22 25 Q 12 28 5 30 Q 12 28 22 25" fill="#CD853F" stroke="#A0522D" stroke-width="1"/>
+                  <!-- Eye -->
+                  <circle cx="62" cy="15" r="2" fill="black"/>
+                  <circle cx="63" cy="14" r="0.5" fill="white"/>
+                  <!-- Beak -->
+                  <path d="M 66 16 L 70 16 L 66 18 Z" fill="#FFD700"/>
+                </svg>
+              } @else {
+                <!-- Female pheasant wings up -->
+                <svg class="wing-frame wings-up" viewBox="0 0 80 40" width="80" height="40">
+                  <!-- Body -->
+                  <ellipse cx="40" cy="25" rx="18" ry="10" fill="#8B6633"/>
+                  <!-- Head/neck -->
+                  <ellipse cx="56" cy="18" rx="8" ry="6" fill="#A0826D"/>
+                  <!-- Wings up - larger -->
+                  <path d="M 40 18 Q 25 5 15 10 Q 20 20 40 25" fill="#6B5D54" stroke="#4A3C1C" stroke-width="1"/>
+                  <path d="M 40 18 Q 55 5 65 10 Q 60 20 40 25" fill="#6B5D54" stroke="#4A3C1C" stroke-width="1"/>
+                  <!-- Wing patterns -->
+                  <path d="M 25 15 Q 30 12 35 15" fill="#8B7355" opacity="0.7"/>
+                  <path d="M 55 15 Q 50 12 45 15" fill="#8B7355" opacity="0.7"/>
+                  <!-- Tail -->
+                  <path d="M 22 25 Q 12 23 5 25 Q 12 27 22 25" fill="#A0826D" stroke="#8B6633" stroke-width="1"/>
+                  <!-- Eye -->
+                  <circle cx="58" cy="17" r="1.5" fill="black"/>
+                  <!-- Beak -->
+                  <path d="M 63 18 L 66 18 L 63 20 Z" fill="#FFD700"/>
+                </svg>
+
+                <!-- Female pheasant wings down -->
+                <svg class="wing-frame wings-down" viewBox="0 0 80 40" width="80" height="40">
+                  <!-- Body -->
+                  <ellipse cx="40" cy="25" rx="18" ry="10" fill="#8B6633"/>
+                  <!-- Head/neck -->
+                  <ellipse cx="56" cy="18" rx="8" ry="6" fill="#A0826D"/>
+                  <!-- Wings down - larger -->
+                  <path d="M 40 25 Q 25 35 15 32 Q 20 25 40 18" fill="#6B5D54" stroke="#4A3C1C" stroke-width="1"/>
+                  <path d="M 40 25 Q 55 35 65 32 Q 60 25 40 18" fill="#6B5D54" stroke="#4A3C1C" stroke-width="1"/>
+                  <!-- Wing patterns -->
+                  <path d="M 25 30 Q 30 32 35 30" fill="#8B7355" opacity="0.7"/>
+                  <path d="M 55 30 Q 50 32 45 30" fill="#8B7355" opacity="0.7"/>
+                  <!-- Tail -->
+                  <path d="M 22 25 Q 12 23 5 25 Q 12 27 22 25" fill="#A0826D" stroke="#8B6633" stroke-width="1"/>
+                  <!-- Eye -->
+                  <circle cx="58" cy="17" r="1.5" fill="black"/>
+                  <!-- Beak -->
+                  <path d="M 63 18 L 66 18 L 63 20 Z" fill="#FFD700"/>
+                </svg>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Hit markers -->
+    @for (marker of hitMarkers; track marker.timestamp) {
+      <div class="hit-marker"
+          [style.left.%]="marker.x"
+          [style.top.%]="marker.y">
+        {{ marker.points > 0 ? '+' : '' }}{{ marker.points }}
+      </div>
+    }
+
+    <!-- Shot markers -->
+    @for (shot of gameState.shots; track shot.timestamp) {
+      <div class="shot-marker"
+          [style.left.%]="shot.x"
+          [style.top.%]="shot.y">
+      </div>
+    }
+
+    <!-- Message overlay -->
+    @if (gameState.message) {
+      <div class="message-overlay">
+        {{ gameState.message }}
+      </div>
+    }
+  </div>
+
+  <div class="game-controls">
+    @if (gameState.gameStatus === 'waiting' || gameState.gameStatus === 'game-over') {
+      <button class="start-button" (click)="startGame()">
+        {{ gameState.gameStatus === 'game-over' ? 'Play Again' : 'Start Game' }}
+      </button>
+    }
+  </div>
+</div>
