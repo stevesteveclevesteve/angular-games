@@ -143,9 +143,15 @@
 
     <!-- Message overlay -->
     @if (gameState.message) {
-      <div class="message-overlay">
-        {{ gameState.message }}
-      </div>
+      @if (gameState.gameStatus === 'game-over') {
+        <div class="message-overlay-game-over">
+          {{ gameState.message }}
+        </div>
+      } @else {
+        <div class="message-overlay">
+          {{ gameState.message }}
+        </div>
+      }
     }
   </div>
 

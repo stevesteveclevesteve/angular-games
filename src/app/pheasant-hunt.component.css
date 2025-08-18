@@ -113,6 +113,21 @@
   pointer-events: none;
 }
 
+.message-overlay-game-over {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px 40px;
+  border-radius: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  pointer-events: none;
+}
+
 .hit-marker {
   position: absolute;
   color: white;

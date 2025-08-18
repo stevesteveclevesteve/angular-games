@@ -29,7 +29,7 @@
     <div class="playing-field">
       @for (hole of holes; track hole.id; let i = $index) {
         <div class="hole-container" [style.grid-area]="getGridArea(i)" [style.align-items]="getGridTextAlign(i)">
-          <div class="hole" (click)="whackMole(hole.id)">
+          <div class="hole" (click)="whackMole(hole.id)" (touchstart)="whackMole(hole.id); $event.preventDefault()">
             <div class="mole"
                  [class.visible]="hole.mole?.isVisible"
                  [class.hit]="hole.mole?.isHit"
