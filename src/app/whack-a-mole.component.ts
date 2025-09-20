@@ -1,5 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { NgStyle } from '@angular/common';
+import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef } from '@angular/core';
 
 interface Mole {
   id: number;
@@ -25,6 +24,8 @@ type GameState = 'waiting' | 'playing' | 'finished';
   styleUrls: ['./whack-a-mole.component.css']
 })
 export class WhackAMoleComponent implements OnInit, OnDestroy {
+  @ViewChild('gameContainer', { static: true }) gameContainer!: ElementRef;
+
   gameState: GameState = 'waiting';
   currentScore = 0;
   highScore = 0;
@@ -43,17 +44,78 @@ export class WhackAMoleComponent implements OnInit, OnDestroy {
   private readonly MIN_SPAWN_INTERVAL = 800; // minimum time between spawns
   private readonly MAX_SPAWN_INTERVAL = 2500; // maximum time between spawns
 
+  // Mobile touch handling properties
+  private touchStartTime = 0;
+  private touchStartData = new Map<number, { x: number; y: number; timestamp: number; holeId: number }>();
+  private readonly MAX_TOUCH_DURATION = 300; // ms
+  private readonly MAX_TOUCH_MOVEMENT = 15; // pixels
+  private isProcessingTouch = false;
+
   constructor() {
     this.initializeHoles();
     this.loadHighScore();
+    this.setupMobileViewport();
   }
 
   ngOnInit(): void {
-    // Component initialization complete
+    this.adjustGameSize();
   }
 
   ngOnDestroy(): void {
     this.cleanup();
+  }
+
+  private setupMobileViewport(): void {
+    // Ensure proper viewport settings for mobile
+    let viewport = document.querySelector('meta[name=viewport]');
+    if (!viewport) {
+      viewport = document.createElement('meta');
+      viewport.setAttribute('name', 'viewport');
+      document.head.appendChild(viewport);
+    }
+    viewport.setAttribute('content', 
+      'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no'
+    );
+  }
+
+  private adjustGameSize(): void {
+    if (!this.gameContainer?.nativeElement) return;
+    
+    const container = this.gameContainer.nativeElement;
+    const viewport = {
+      width: window.innerWidth,
+      height: window.innerHeight
+    };
+    
+    // Ensure game doesn't exceed viewport with some padding
+    const maxWidth = Math.min(500, viewport.width * 0.95);
+    const maxHeight = Math.min(700, viewport.height * 0.9);
+    
+    container.style.maxWidth = `${maxWidth}px`;
+    container.style.maxHeight = `${maxHeight}px`;
+  }
+
+  // Handle viewport changes (orientation, keyboard, etc.)
+  @HostListener('window:resize')
+  @HostListener('window:orientationchange')
+  onViewportChange() {
+    setTimeout(() => {
+      this.adjustGameSize();
+    }, 100);
+  }
+
+  // Prevent context menu on long press
+  @HostListener('contextmenu', ['$event'])
+  onContextMenu(event: Event) {
+    event.preventDefault();
+    return false;
+  }
+
+  // Prevent unwanted touch behaviors
+  @HostListener('touchend', ['$event'])
+  onGlobalTouchEnd(event: TouchEvent) {
+    // Prevent double-tap zoom
+    event.preventDefault();
   }
 
   private initializeHoles(): void {
@@ -114,6 +176,125 @@ export class WhackAMoleComponent implements OnInit, OnDestroy {
   getHighScoreDigit(position: number): string {
     const scoreString = this.highScore.toString().padStart(2, '0');
     return scoreString[position] || '0';
+  }
+
+  // NEW: Mobile-optimized touch handlers
+  onTouchStart(event: TouchEvent, holeId: number): void {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    console.log('Touch start on hole:', holeId); // DEBUG
+    
+    if (this.isProcessingTouch || this.gameState !== 'playing') return;
+    
+    if (event.touches.length !== 1) return; // Only handle single touches
+
+    const touch = event.touches[0];
+    const touchId = touch.identifier;
+
+    this.touchStartData.set(touchId, {
+      x: touch.clientX,
+      y: touch.clientY,
+      timestamp: Date.now(),
+      holeId: holeId
+    });
+  }
+
+  onTouchEnd(event: TouchEvent, holeId: number): void {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    console.log('Touch end on hole:', holeId); // DEBUG
+    
+    if (this.isProcessingTouch || this.gameState !== 'playing') return;
+    
+    if (event.changedTouches.length !== 1) return;
+
+    const touch = event.changedTouches[0];
+    const touchId = touch.identifier;
+    const startData = this.touchStartData.get(touchId);
+
+    if (!startData || startData.holeId !== holeId) {
+      this.touchStartData.delete(touchId);
+      return;
+    }
+
+    const endTime = Date.now();
+    const duration = endTime - startData.timestamp;
+
+    // Clean up
+    this.touchStartData.delete(touchId);
+
+    console.log('Touch validation - Duration:', duration, 'HoleId:', holeId); // DEBUG
+
+    // Validate the touch
+    if (this.isValidTouch(touch, startData, duration)) {
+      console.log('Valid touch detected, whacking mole:', holeId); // DEBUG
+      this.isProcessingTouch = true;
+      this.whackMole(holeId);
+      
+      // Reset processing flag after short delay
+      setTimeout(() => {
+        this.isProcessingTouch = false;
+      }, 100);
+    }
+  }
+
+  private isValidTouch(
+    endTouch: Touch, 
+    startData: { x: number; y: number; timestamp: number; holeId: number }, 
+    duration: number
+  ): boolean {
+    // Check duration (not too long, not too short)
+    if (duration > this.MAX_TOUCH_DURATION || duration < 50) {
+      return false;
+    }
+
+    // Check movement (finger shouldn't move too much)
+    const deltaX = Math.abs(endTouch.clientX - startData.x);
+    const deltaY = Math.abs(endTouch.clientY - startData.y);
+    const movement = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    if (movement > this.MAX_TOUCH_MOVEMENT) {
+      return false;
+    }
+
+    return true;
+  }
+
+  // NEW: Mouse handlers for desktop (only when not touch device)
+  onMouseDown(event: MouseEvent, holeId: number): void {
+    // Only handle mouse events if not on touch device
+    if ('ontouchstart' in window) return;
+    
+    event.preventDefault();
+    event.stopPropagation();
+    
+    console.log('Mouse down on hole:', holeId); // DEBUG
+    
+    if (this.gameState !== 'playing') return;
+    
+    this.touchStartTime = Date.now();
+  }
+
+  onMouseUp(event: MouseEvent, holeId: number): void {
+    // Only handle mouse events if not on touch device
+    if ('ontouchstart' in window) return;
+    
+    event.preventDefault();
+    event.stopPropagation();
+    
+    console.log('Mouse up on hole:', holeId); // DEBUG
+    
+    if (this.gameState !== 'playing') return;
+    
+    const duration = Date.now() - this.touchStartTime;
+    console.log('Mouse click duration:', duration, 'HoleId:', holeId); // DEBUG
+    
+    if (duration <= this.MAX_TOUCH_DURATION) {
+      console.log('Valid mouse click detected, whacking mole:', holeId); // DEBUG
+      this.whackMole(holeId);
+    }
   }
 
   startGame(): void {
@@ -201,12 +382,17 @@ export class WhackAMoleComponent implements OnInit, OnDestroy {
   }
 
   whackMole(holeId: number): void {
+    console.log('whackMole called with holeId:', holeId, 'gameState:', this.gameState); // DEBUG
+    
     if (this.gameState !== 'playing') return;
 
     const hole = this.holes.find(h => h.id === holeId);
+    console.log('Found hole:', hole, 'Has mole:', !!hole?.mole, 'Mole visible:', hole?.mole?.isVisible); // DEBUG
+    
     if (!hole || !hole.mole || !hole.mole.isVisible || hole.mole.isHit) return;
 
     // Mole hit!
+    console.log('Mole hit! Score:', this.currentScore + 1); // DEBUG
     hole.mole.isHit = true;
     hole.mole.isVisible = false;
     this.currentScore++;
@@ -277,5 +463,9 @@ export class WhackAMoleComponent implements OnInit, OnDestroy {
         clearTimeout(hole.mole.timeoutId);
       }
     });
+
+    // Clear touch data
+    this.touchStartData.clear();
+    this.isProcessingTouch = false;
   }
 }

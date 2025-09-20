@@ -1,4 +1,4 @@
-<div class="game-container">
+<div class="game-container" #gameContainer>
   <h1>Whack-a-Mole</h1>
 
   <div class="game-board">
@@ -29,7 +29,11 @@
     <div class="playing-field">
       @for (hole of holes; track hole.id; let i = $index) {
         <div class="hole-container" [style.grid-area]="getGridArea(i)" [style.align-items]="getGridTextAlign(i)">
-          <div class="hole" (click)="whackMole(hole.id)" (touchstart)="whackMole(hole.id); $event.preventDefault()">
+          <div class="hole"
+               (touchstart)="onTouchStart($event, hole.id)"
+               (touchend)="onTouchEnd($event, hole.id)"
+               (mousedown)="onMouseDown($event, hole.id)"
+               (mouseup)="onMouseUp($event, hole.id)">
             <div class="mole"
                  [class.visible]="hole.mole?.isVisible"
                  [class.hit]="hole.mole?.isHit"
